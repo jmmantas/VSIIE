@@ -1,0 +1,110 @@
+#!/usr/bin/python3
+
+""""
+This python script runs several numerical simulations with the stiff Brusselator model 
+(described in include/IVP_ODE_stiff_brusselator.h) by invoking VSIIE andd IIE solvers with different 
+convergence orders (1-4). 
+It generates numerical errors, execution times and number of stepsizes for different scenarios 
+saving them in a separate text file for each particular solver. It also generates two .png image files: 
+
+    a) A work-precision diagram showing the execution time required by each IIE/VSIIE solver to 
+    achieve a given accuracy. 
+
+    b) A graph showing the number of stepsizes required to achieve a given accurracy for each IIE/VSIIE solver.   
+
+VSIIE Copyright (C) 2025 Jose Miguel Mantas Ruiz (jmmantas@ugr.es) and Raed Ali Mara'Beh (raedmaraabeh@gmail.com)
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+"""
+
+import argparse
+import subprocess
+import sys
+import os
+import numpy as np
+
+# Obtain the absolute route of the current directory
+script_dir = os.path.dirname(os.path.abspath(__file__))
+# Obtain  the absolute route of the parent directory
+parent_dir = os.path.dirname(script_dir)
+# Add the parent directory to sys.path so it can find the module
+sys.path.insert(0, parent_dir)
+# Import the module located in the parent directory
+import my_modules.utilities as util
+
+#************************************************************************************   
+# Parameters to run the experiments for ADR equation  
+#************************************************************************************
+Problem=1
+IVP_name="stiff_Brusselator"
+Neqn=300
+Tf=2
+FOLDER="SBR"
+
+def generate_refined_steps(h0, n, factor=2):
+    return [h0 / (factor ** k) for k in range(n)]
+#************************************************************************************
+# Stepsize arrays for IIE solvers of different orders
+#************************************************************************************
+num_steps = 6
+
+stepsize_array = [
+    generate_refined_steps(5e-3, num_steps),   # order 1
+    generate_refined_steps(5e-3, num_steps),   # order 2
+    generate_refined_steps(5e-3, num_steps),     # order 3
+    generate_refined_steps(5e-3, num_steps) ]   # order 4
+# Stepsize arrays for IIE solvers of different orders
+#stepsize_array=[
+# [1e-1, 1e-2, 1e-3, 5e-4, 1e-5, 1e-6, 5e-7],  #order 1   
+# [1e-1, 5e-2, 1e-2, 5e-3, 1e-4, 1e-5, 5e-6],  #order 2
+# [5e-2, 1e-2, 5e-3, 1e-4, 1e-5],        #order 3
+# [5e-2, 1e-2, 5e-3, 1e-4]               #order 4
+# ]
+#************************************************************************************
+
+
+#************************************************************************************
+# Tolerance arrays for VSIIE solvers of different orders
+VSIIE_tol_array=[
+ [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 1
+ [   1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 2
+ [  1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 3
+ [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 4
+]
+#************************************************************************************
+
+
+#************************************************************************************
+# Alpha values for VSIIE solvers of different orders
+alpha_array=[
+    [0.8, 0.8, 0.8, 0.8, 0.8, 0.8],   #order 1
+    [0.4, 0.4, 0.4, 0.4, 0.4, 0.4],   #order 2
+    [0.4, 0.4, 0.4, 0.4, 0.4, 0.4],        #order 3 
+    [0.4, 0.4, 0.4, 0.4 , 0.4, 0.4    ]         #order 4
+]
+    
+#************************************************************************************
+
+#************************************************************************************
+
+
+#************************************************************************************
+util.show_parameters(Problem, IVP_name, Neqn, Tf, stepsize_array, 
+                     VSIIE_tol_array, alpha_array)
+
+#************************************************************************************
+# Call to run the experiments
+#************************************************************************************
+util.do_experiments(Problem, IVP_name, Neqn, Tf, FOLDER, stepsize_array, 
+                    VSIIE_tol_array, alpha_array)
