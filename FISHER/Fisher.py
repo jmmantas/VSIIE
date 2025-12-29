@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-""""
+"""
 This python script runs several numerical simulations with the Fisher combustion model 
 (described in include/IVP_ODE_combustion.h) by invoking VSIIE andd IIE solvers with different 
 convergence orders (1-4). 
@@ -26,7 +26,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-""""
+"""
 
 
 import argparse

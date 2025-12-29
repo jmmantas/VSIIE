@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-""""
+"""
 This python script runs several numerical simulations with the stiff Brusselator model 
 (described in include/IVP_ODE_stiff_brusselator.h) by invoking VSIIE andd IIE solvers with different 
 convergence orders (1-4). 

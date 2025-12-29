@@ -1,4 +1,4 @@
-""""
+"""
 This python module defines certain  functions which are used by other python scripts in order
 to  generate numerical simulations and image files.
 
@@ -16,7 +16,7 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
-""""
+"""
 
 
 import matplotlib.pyplot as plt
