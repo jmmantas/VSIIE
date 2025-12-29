@@ -1,9 +1,9 @@
-# VSIIE:  Variable Stepsize implicit-Implicit-Explicit (IIE)  Solvers in C++
-**VSIIE** software package includes the C++ implementation of a family of Variable-Stepsize IIE methods to solve several stiff IVP-ODEs derived from  Advection-Diffusion-Reaction Models. 
+# VSIIE:  Variable Stepsize Implicit-Implicit-Explicit (IIE)  Solvers in C++
+**VSIIE** software package includes the C++ implementation of a family of Variable-Stepsize 3-additive Implicit-Implicit-Explicit methods to solve stiff IVP-ODEs derived from  Advection-Diffusion-Reaction Models. 
 
 The IVP-ODE  is given by: 
 
-dy/dt=F(t,y(t)) = f1(t,y(t)) + f2(t,y(t))  + f3(t,y(t)),   y(t_0)=y_0,
+dy/dt = F(t,y(t)) = f1(t,y(t)) + f2(t,y(t))  + f3(t,y(t)),   y(t_0)=y_0,
 
 being f1(t,y(t)) and f2(t,y(t)) the stiff terms in F(t,y(t))  (usually f1(t,y(t)) represents the diffusion term and f2(t,y(t)) is the reaction term) 
 and f3(t,y(t)) a nonstiff term (usually the advection term).
