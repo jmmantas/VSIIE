@@ -434,7 +434,7 @@ void perform_experiments(const int order,  IVP_ODE* IVP,  VSIIE_Solver * VSIIE_I
     // Only for th 1st iteration
     if (j==0){
       cblas_daxpy(neqn, -1.0, Y1_solut, 1, Y1, 1); 
-      error = cblas_dnrm2(neqn, Y1, 1)/pow(neqn, 0.5);
+      error = cblas_dnrm2(neqn, Y1, 1);
     }
     const double current_runtime=duration_cast<nanoseconds>(end - start).count() * 1e-9;
     runtime = (j==0) ?current_runtime: min(runtime,current_runtime);  
@@ -627,8 +627,8 @@ int main(int argc, char** argv)
   // Generate the name of the file which  stores the reference solution data 
   const string ref_sol_filename=data_folder+"ref_sol-" + 
                                   IVP->get_name()+
-                                 "-"+to_string(Neqn)+"-"+s_tf+".txt";
-  //const string ref_sol_filename = data_folder + "r.txt";
+                           "-"+to_string(Neqn)+"-"+s_tf+".txt";
+  //const string ref_sol_filename = data_folder + "y_new.txt";
   // Obtain the reference solution from a file or produce 
   // it and save it in a file if the file does not exist
   Obtain_reference_solution(ref_sol_filename, IVP, t0, tf, Y1_RK);

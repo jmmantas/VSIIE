@@ -49,29 +49,49 @@ import my_modules.utilities as util
 #************************************************************************************
 Problem=2
 IVP_name="FKPP"
-Neqn=500
+Neqn=100
 Tf=1.0
 FOLDER="FKPP"
 
 #************************************************************************************
 # Stepsize arrays for IIE solvers of different orders
-stepsize_array=[
- [1.0e-1, 2.5e-2, 1.0e-2, 7.5e-3, 5.0e-3, 1.0e-3], #order 1
- [1.0e-1, 2.5e-2, 1.0e-2, 7.5e-3, 5.0e-3, 1.0e-3],  #order 2
- [1.0e-1, 2.5e-2, 1.0e-2, 7.5e-3, 5.0e-3, 1.0e-3],  #order 3
- [1.0e-1, 7.5e-2, 5.0e-2, 2.5e-2, 1.0e-2, 7.5e-3]   #order 4
- ]
+#************************************************************************************
+def generate_refined_steps(h0, n, factor=2):
+    return [h0 / (factor ** k) for k in range(n)]
+
+#************************************************************************************
+# Stepsize arrays for IIE solvers of different orders
+#************************************************************************************
+num_steps = 6
+
+stepsize_array = [
+    generate_refined_steps(5e-3, num_steps),   # order 1
+    generate_refined_steps(5e-3, num_steps),   # order 2
+    generate_refined_steps(1e-1, num_steps),     # order 3
+    generate_refined_steps(1e-1, num_steps) ]   # order 4
+#stepsize_array=[
+# [1.0e-1, 2.5e-2, 1.0e-2, 7.5e-3, 5.0e-3, 1.0e-3], #order 1
+# [1.0e-1, 2.5e-2, 1.0e-2, 7.5e-3, 5.0e-3, 1.0e-3],  #order 2
+# [1.0e-1, 2.5e-2, 1.0e-2, 7.5e-3, 5.0e-3, 1.0e-3],  #order 3
+# [1.0e-1, 7.5e-2, 5.0e-2, 2.5e-2, 1.0e-2, 7.5e-3]   #order 4
+# ]
 #************************************************************************************
 
 
 #************************************************************************************
 # Tolerance arrays for VSIIE solvers of different orders
+# Tolerance arrays for VSIIE solvers of different orders
 VSIIE_tol_array=[
- [1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 1
- [1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 2
- [1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 3
- [1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5] #order 4
-]
+ [1.0e-1,  1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 1
+ [1.0e-1,  1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 2
+ [1.0e-1,  1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 3
+ [1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6]] #order 4
+#VSIIE_tol_array=[
+ #[1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 1
+ #[1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 2
+ #[1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 3
+ #[1.0e-1, 5.0e-2, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5] #order 4
+#]
 #************************************************************************************
 
 

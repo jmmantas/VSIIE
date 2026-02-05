@@ -1,8 +1,7 @@
 #!/usr/bin/python3
 
 
-
-""" 
+"""
 This python script runs several numerical simulations with the 1D Advection-Diffusion model 
 (described in include/IVP_ODE_advdiff1d.h) by invoking VSIIE andd IIE solvers with different 
 convergence orders (1-4). 
@@ -27,7 +26,7 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>. 
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 

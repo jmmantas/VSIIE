@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-"""
+""""
 This python script runs several numerical simulations with the stiff Brusselator model 
 (described in include/IVP_ODE_stiff_brusselator.h) by invoking VSIIE andd IIE solvers with different 
 convergence orders (1-4). 
@@ -48,8 +48,8 @@ import my_modules.utilities as util
 #************************************************************************************
 Problem=1
 IVP_name="stiff_Brusselator"
-Neqn=300
-Tf=2
+Neqn=99
+Tf=1
 FOLDER="SBR"
 
 def generate_refined_steps(h0, n, factor=2):
@@ -57,41 +57,40 @@ def generate_refined_steps(h0, n, factor=2):
 #************************************************************************************
 # Stepsize arrays for IIE solvers of different orders
 #************************************************************************************
-num_steps = 6
+num_steps = 5
 
 stepsize_array = [
     generate_refined_steps(5e-3, num_steps),   # order 1
     generate_refined_steps(5e-3, num_steps),   # order 2
     generate_refined_steps(5e-3, num_steps),     # order 3
     generate_refined_steps(5e-3, num_steps) ]   # order 4
+#************************************************************************************
 # Stepsize arrays for IIE solvers of different orders
 #stepsize_array=[
-# [1e-1, 1e-2, 1e-3, 5e-4, 1e-5, 1e-6, 5e-7],  #order 1   
-# [1e-1, 5e-2, 1e-2, 5e-3, 1e-4, 1e-5, 5e-6],  #order 2
-# [5e-2, 1e-2, 5e-3, 1e-4, 1e-5],        #order 3
-# [5e-2, 1e-2, 5e-3, 1e-4]               #order 4
-# ]
+ #[7.5e-3, 1.0e-3, 5.0e-4, 1.0e-4, 5.0e-5, 1.0e-5, 5.0e-6], #order 1
+ #[7.5e-3, 1.0e-3, 5.0e-4, 1.0e-4, 5.0e-5, 1.0e-5, 5.0e-6],  #order 2
+ #[1e-3, 5e-4, 2.5e-4, 1.25e-4, 6.25e-5, 3.125e-5, 1.5625e-5],  #order 3
+ #[7.5e-3, 1.0e-3, 5.0e-4, 1.0e-4, 5.0e-5, 1.0e-5] ]  #order 4
 #************************************************************************************
 
 
 #************************************************************************************
 # Tolerance arrays for VSIIE solvers of different orders
 VSIIE_tol_array=[
- [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 1
- [   1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 2
- [  1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 3
- [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5, 1.0e-6], #order 4
-]
+ [ 1.0e-1,  1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 1
+ [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 2
+ [1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 3
+ [ 1.0e-1,1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5]] #order 4
 #************************************************************************************
 
 
 #************************************************************************************
 # Alpha values for VSIIE solvers of different orders
 alpha_array=[
-    [0.8, 0.8, 0.8, 0.8, 0.8, 0.8],   #order 1
-    [0.4, 0.4, 0.4, 0.4, 0.4, 0.4],   #order 2
-    [0.4, 0.4, 0.4, 0.4, 0.4, 0.4],        #order 3 
-    [0.4, 0.4, 0.4, 0.4 , 0.4, 0.4    ]         #order 4
+    [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],   #order 1
+    [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], #order 2
+      [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2], #order 3 
+     [0.2, 0.2, 0.2, 0.2, 0.2, 0.2, 0.2],  #order 4
 ]
     
 #************************************************************************************
