@@ -1117,7 +1117,7 @@ void VSIIE_Solver::Adaptive_dt_Integrate(const double t0, const double tf,
     double alpha=0.8, double eta_min= 0.5, 
     double eta_max = 4)  {        
 //***************************************************
-  
+  double stability_factor[4]= {eta_max , 2.414, 1.501, 1.101};
   const  double range_factor=0.2;
   const double range=tol*range_factor;
   const double  p_inv=1.0/(order+1);
@@ -1180,8 +1180,7 @@ void VSIIE_Solver::Adaptive_dt_Integrate(const double t0, const double tf,
       // Check the error condition
       double error_diff=epsilon_c-tol;
       accepted=(error_diff<=range);
-      factor=min(max(alpha*pow(tol/epsilon_c,p_inv),eta_min  ),eta_max);
-
+      factor=min(max(alpha*pow(tol/epsilon_c,p_inv),eta_min  ),stability_factor[idx]);
       if (accepted){
         if (fabs(error_diff)<=range) next_dt=h_vector[idx];
         else                         next_dt=h_vector[idx]*factor;
