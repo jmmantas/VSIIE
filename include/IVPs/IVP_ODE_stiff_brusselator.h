@@ -179,6 +179,7 @@ void IVP_ODE_stiff_brusselator::F1 (const double t, const double *Y, double *DY)
    // First, set the boundary conditions to zero derivative (stationary)
    DY[idx(0, 0)] = 0;  DY[idx(0, 1)] = 0;  DY[idx(0, 2)] = 0;
    DY[idx(nx - 1, 0)] = 0;   DY[idx(nx - 1, 1)] = 0;   DY[idx(nx - 1, 2)] = 0;
+   
    // Apply the diffusion term for interior points
    for (int i = 1; i < (nx - 1); i++) {
     // Indexes for u, v, and w at grid point i
@@ -197,25 +198,21 @@ void IVP_ODE_stiff_brusselator::F1 (const double t, const double *Y, double *DY)
 //***************************************************
 void IVP_ODE_stiff_brusselator::F2 (const double t, const double *Y, double *DY)
 {
-  for (int i = 1; i < nx - 1; i++) {
+  // First, set the boundary conditions to zero derivative (stationary)
+  DY[idx(0, 0)] = 0;  DY[idx(0, 1)] = 0;  DY[idx(0, 2)] = 0;
+  DY[idx(nx - 1, 0)] = 0;   DY[idx(nx - 1, 1)] = 0;   DY[idx(nx - 1, 2)] = 0;
+  
+  // Reaction term for interior points
+  for (int i = 1; i < nx-1; i++) {
     const int i0 = idx(i, 0), i1 = i0 + 1, i2 = i0 + 2;
     const double u = Y[i0], v = Y[i1], w = Y[i2];
-
     // Reaction terms
-    DY[i0] = a - (w + 1) * u + u * u * v ; // Adding advection term for u
-    DY[i1] = w * u - u * u * v ; // Adding advection term for v
-    DY[i2] = (b - w) / eps - w * u; // Adding advection term for w
+    DY[i0] = a - (w + 1) * u + u * u * v ; // Adding reaction term for u
+    DY[i1] = w * u - u * u * v ; // Adding reaction term for v
+    DY[i2] = (b - w) / eps - w * u; // Adding reaction term for w
   }
 
-   // For boundary points, calculate the reaction terms 
-    for (int i : {0, nx - 1}) {
-        const int i0 = idx(i, 0), i1 = i0 + 1, i2 = i0 + 2;
-        const double u = Y[i0], v = Y[i1], w = Y[i2];
-        // Only reaction terms are considered at the boundaries
-        DY[i0] = a - (w + 1) * u + u * u * v; // u reaction term
-        DY[i1] = w * u - u * u * v; // v reaction term
-        DY[i2] = (b - w) / eps - w * u; // w reaction term
-    }
+  
 
 }
 //***************************************************
