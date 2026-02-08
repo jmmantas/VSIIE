@@ -44,6 +44,7 @@ private:
   const double gamma=0.1;
   const double beta=1.0;
   const double GoB=gamma/beta;
+ // const double alpha1 = 0.1;
   const double alpha1 = 0.1;
   const double cs=0.6;
   const double alpha2 = alpha1/((1-cs)*(1-cs));
@@ -53,7 +54,7 @@ private:
   const double xi=10.0;
   const double xf=50.0;
   const double sigma=10;
-  const double U0=0.00;//0.99, 0.75
+  const double U0=0.5;//0.99, 0.75
   // Type of combustion reaction term---> 1:FKPP, 2:Ignition, 3:Fisher
   int Type; 
   
@@ -271,11 +272,11 @@ void IVP_ODE_combustion::F3 (const double t, const double *Y, double *DY)
       DY[i] = -a * (1 + U0 * sin(i * pi_dtx_div_L)) * (Y[i + 1] - Y[i - 1]) / (2*dtx);
   };
   // Compute partially DY in boundary points (i=0 and i=nx-1)
-  //DY[0]   =-a*(Y[1]-Y[nx-1])/ 2 * dtx +  alpha1*(Y[0])*(1-Y[0]);
-  DY[0] = -a * (Y[1] - Y[nx - 1]) / 2 * dtx;
-  // DY[nx-1]=-a*(1+U0*sin((nx-1)*pi_dtx_div_L))*(Y[0]-Y[nx-2])/ 2 * dtx
+  //DY[0]   =-a*(Y[1]-Y[nx-1])/ (2 * dtx) +  alpha1*(Y[0])*(1-Y[0]);
+  DY[0] = -a * (Y[1] - Y[nx - 1]) / (2 * dtx);
+  // DY[nx-1]=-a*(1+U0*sin((nx-1)*pi_dtx_div_L))*(Y[0]-Y[nx-2])/ (2 * dtx)
                        //         +  alpha1*(Y[nx-1])*(1-Y[nx-1]);
-  DY[nx-1]=-a*(1+U0*sin((nx-1)*pi_dtx_div_L))*(Y[0]-Y[nx-2])/ 2 * dtx;
+  DY[nx-1]=-a*(1+U0*sin((nx-1)*pi_dtx_div_L))*(Y[0]-Y[nx-2])/ (2 * dtx);
 }
  
 

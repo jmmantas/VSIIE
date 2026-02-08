@@ -80,8 +80,7 @@ public:
   // in the IVP_ODE_advdiff1d
   //******************************************************     
   void Compute_Matrix_Exact(const double t, double a, double b,
-    double *Y, LIS_MATRIX As);
-
+                            double *Y, LIS_MATRIX As);
 
   //******************************************************
   // Save the data corresponding to a state vector Y
@@ -96,7 +95,8 @@ public:
 // Constructor of the class IVP_ODE_advdiff1d
 IVP_ODE_advdiff1d::IVP_ODE_advdiff1d(const int nx_points)
 //*****************************************************
-{ IVP_name="1D_Adv-Diff";
+{ 
+  IVP_name="1D_Adv-Diff";
   nx=nx_points;
   // Number of ODEs
   neqn=nx;  
