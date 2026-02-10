@@ -45,7 +45,7 @@ using namespace std;
 
 
 //*****************************************************************
-// Class for the IVP Solver SBDF-order 
+// Class for the IVP Solver VSIIE-order 
 //*****************************************************************
 class VSIIE_Solver {
 
@@ -126,7 +126,7 @@ private:
   //******************************************************
 
   //******************************************************
-  // Update coefficients of VSSBDF-order scheme
+  // Update coefficients of VSIIE-order scheme
   //******************************************************
   void Update_coefs(const unsigned order,const double * h_vector);
   //******************************************************
@@ -187,7 +187,7 @@ const bool variable_tstep, int & newton_iters);
   //******************************************************
 
   //******************************************************
-  // Destructor of the class SBDF
+  // Destructor of the class VSIIE_Solver
   //******************************************************
   ~VSIIE_Solver();
 
@@ -210,7 +210,7 @@ const bool variable_tstep, int & newton_iters);
                                  
 
   //***************************************************
-  // Coarse and Fine Time steps using Variable SBDF scheme
+  // Coarse and Fine Time steps using Variable VSIIE scheme
   //***************************************************
   void Variable_Time_Step(const double t, double * h_vector, 
                                      double * h_vector_half, double * h_vector_half2, double ** Y, 
@@ -220,7 +220,7 @@ const bool variable_tstep, int & newton_iters);
 
   //***************************************************
 // Function implementing the order 1-4 VSIIE Time Integrator
-// It assumes a adaptive time step
+// It assumes an adaptive time step
 //***************************************************
 void Adaptive_dt_Integrate(const double t0, const double tf,
     const double h, double** Y_init, double ** Yf_init, double* Y1, 
