@@ -481,8 +481,11 @@ void VSIIE_Solver::compute_matrix(const double t, const double h, double ** Y) {
       //Compute matrix As=Id-a*J1-b*J2
       //init_CSR_LIS_matrix(&As2);
       //IVP->Compute_Matrix_FD(t, h_coef_idx_F1, h_coef_idx_F2, Y[idx], As2);
-      //print_matrix_csr( As);
+      //cout<<"MATRIX As2=Id-a*J1-b*J2  is "<<endl;
+      //print_matrix_csr( As2);
       IVP->Compute_Matrix_Exact(t, h_coef_idx_F1, h_coef_idx_F2, Y[idx], As);
+      //cout<<"MATRIX As=Id-a*J1-b*J2  is "<<endl;
+      //print_matrix_csr( As);
       //compare_matrix_csr(As, As2);
   }
 //***************************************************

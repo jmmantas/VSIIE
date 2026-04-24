@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IVP_ODE_advdiff1d.h"
 #include "IVP_ODE_stiff_brusselator.h"
 #include "IVP_ODE_combustion.h"
+#include "IVP_ODE_HIRES.h"
 
 #include "VSIIE_Solver.h"
 #include "utils.h"
@@ -429,6 +430,13 @@ void perform_experiments(const int order,  IVP_ODE* IVP,  VSIIE_Solver * VSIIE_I
       n_steps=ceil((tf-t0)/h); 
     }
     end = high_resolution_clock::now();
+   
+    // Print Y1 for debugging
+   //cout << "Numerical solution Y1 at t=tf: " << endl;
+   //for (int i = 0; i < neqn; ++i) {    
+    //  cout << Y1[i] << endl; 
+    //} 
+    
 
     // Compute the difference between the numerical solution and the reference solution
     // Only for th 1st iteration
@@ -518,7 +526,7 @@ int main(int argc, char** argv)
     }
     if (!error){
       problem_id=atoi(argv[2]); // Problem identifier
-      if (problem_id>4 || problem_id<0){
+      if (problem_id>5 || problem_id<0){
         cerr << "Invalid problem_id parameter. Please select problem_id between 0 and 4." << endl;
         error=true;
       }
@@ -560,6 +568,7 @@ int main(int argc, char** argv)
     cerr << "<problem.id>= " <<endl;
     cerr << "              0: 1D Advection-Diffusion.  |   1: Stiff Brusselator." <<endl;
     cerr << "              2: FKPP Comb.               |   3: Ignition Comb.     |     4: Fisher Comb." << endl;
+    cerr << "              5: HIRES" << endl;
     cerr << endl;
 
     cerr << "<Neqn>: Number of ODEs " <<endl;
@@ -590,12 +599,15 @@ int main(int argc, char** argv)
   IVP_ODE_advdiff1d   IVP_advdiff1d(Neqn);
   IVP_ODE_stiff_brusselator IVP_stiff_brusselator(Neqn/3);
   IVP_ODE_combustion IVP_combustion(Neqn, problem_id-1);
+  IVP_ODE_HIRES IVP_HIRES(Neqn);
   if (problem_id==0) 
     IVP= &IVP_advdiff1d;
   else if (problem_id==1)
     IVP= &IVP_stiff_brusselator;
   else if (problem_id>=2 && problem_id<=4)
     IVP= &IVP_combustion;
+  else if (problem_id==5)
+    IVP= &IVP_HIRES;
   else {
     cerr << "Invalid problem id. Please select a valid problem id." << endl;
     return 1;

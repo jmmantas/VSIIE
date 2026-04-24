@@ -12,7 +12,8 @@ IVP=IVP_ODE
 IVP1=IVP_ODE_advdiff1d
 IVP2=IVP_ODE_stiff_brusselator
 IVP3=IVP_ODE_combustion
-ALL_IVPs=${DIR_IVP}/$(IVP1).h ${DIR_IVP}/$(IVP2).h ${DIR_IVP}/$(IVP3).h   ${DIR_IVP}/$(IVP).h
+IVP4=IVP_ODE_HIRES
+ALL_IVPs=${DIR_IVP}/$(IVP1).h ${DIR_IVP}/$(IVP2).h ${DIR_IVP}/$(IVP3).h ${DIR_IVP}/$(IVP4).h   ${DIR_IVP}/$(IVP).h
 
 CCLINKLIBS = -L$(LISROOT)/lib  -llis -lopenblas
 
