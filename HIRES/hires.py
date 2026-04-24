@@ -52,7 +52,7 @@ import my_modules.utilities as util
 Problem=5
 IVP_name="HIRES"
 Neqn=8
-Tf=0.5
+Tf=5.0
 FOLDER="HIRES"
 
 def generate_refined_steps(h0, n, factor=2):
@@ -65,9 +65,9 @@ num_steps = 6
 
 stepsize_array = [
     generate_refined_steps(5e-3, num_steps),   # order 1
-    generate_refined_steps(5e-3, num_steps),   # order 2
-    generate_refined_steps(1e-1, num_steps),     # order 3
-    generate_refined_steps(1e-1, num_steps) ]   # order 4
+    generate_refined_steps(1e-2, num_steps),   # order 2
+    generate_refined_steps(1e-2, num_steps),     # order 3
+    generate_refined_steps(5e-3, num_steps) ]   # order 4
 #************************************************************************************
 # Stepsize arrays for IIE solvers of different orders
 #stepsize_array=[
