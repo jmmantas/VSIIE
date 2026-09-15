@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IVP_ODE.h"
 #include "VSIIE_Solver.h"
 
+#include "utils.h"
+
 using namespace std;
 #include <assert.h>
 
@@ -313,19 +315,12 @@ void VSIIE_Solver::Update_coefs_SBDF4(const double * h_vector) {
   const double w_n2_sqr=w_n2*w_n2;
   const double w_n2_cube=w_n2*w_n2_sqr;
   const double w_n3_sqr=w_n3*w_n3;
-  const double alpha_1=alpha-1.0, H = alpha_1*A2 *(G3*w_n1 * w_n2 + G1);
     
   a[0] = (G3 * A2 * w_n1_p4 * w_n2_cube * w_n3_sqr) / (G1 * A1 * A3);
   a[1] = -(w_n2_cube * w_n3_sqr * G3 * A3) / (G2 * A2);
   a[2] = w_n3 * (w_n3 / G3 + (w_n2 * w_n3 * (A3 + w_n1)) / G1);
   a[3] = -G3 - (w_n3 * w_n2 * G3 * (A1 + w_n1 * A2)) / (A1 * G2);
   a[4] = 1.0 + w_n3/G3 + w_n2*w_n3/A2 + w_n1*w_n2*w_n3/A3;
-
-  /* b2[0] = A2*w_n3*w_n1_cube*G3*w_n2_sqr*alpha_1/(A1*G1);
-  b2[1] = -(w_n3*alpha_1*G3*w_n2_sqr*A3)/G2;
-  b2[2] = w_n3*H/G1;
-  b2[3] = -G3*H/(G2*A1);
-  b2[4]=alpha; */
 
 
   for (unsigned i=0;i<order;i++){
@@ -355,76 +350,6 @@ void VSIIE_Solver::Update_coefs_SBDF4(const double * h_vector) {
   
   // Free dynamically allocated memory
   delete[] a; delete[] b1; delete[] b2; delete[] b3;
-
-}
-
-
-
-
-//**************************************************************
-// Print values of sparse matrix A
-void VSIIE_Solver::print_matrix_csr(LIS_MATRIX A)
-//**************************************************************
-{
-  LIS_INT	n;
-	LIS_INT	i,j,jj;
-	n   = A->n;
-  LIS_SCALAR value1;
-  for(i=0;i<n;i++){
-		for(j=A->ptr[i];j<A->ptr[i+1];j++){
-			jj = A->index[j]; 		value1 = A->value[j];
-      cout<<"ROW  "<<i<<" ....  COL "<<jj<<" Value in MATRIX is  "<<value1<<endl;
-    } 	
-  }
-} 
-
-
-
-
-
-//**************************************************************
-// Check important errors between sparse matrices A1 and A2
-void VSIIE_Solver::compare_matrix_csr(LIS_MATRIX A1, LIS_MATRIX A2)
-//**************************************************************
-{
-  LIS_INT	n,nnz;
-	LIS_INT	i,j,jj1,jj2;
-	n   = A1->n;
-	nnz = A1->nnz;
-    LIS_SCALAR value1, value2;
-    int errors=0;
-    const double tol=1.0e-2;
-    double max_value=A1->value[0];
-    max_value=0;
-    for(i=1;i<nnz;i++) 
-       max_value=max(max_value, fabs(A1->value[i]));
-
-    for(i=0;i<n;i++)
-	{
-		for(j=A1->ptr[i];j<A1->ptr[i+1];j++)
-		{
-			jj1 = A1->index[j];
-            jj2 = A2->index[j];
-			value1 = A1->value[j];
-            value2 = A2->value[j];
-            double diff=fabs((value2-value1)/max_value);
-            if (jj1!=jj2) {
-                cout<<"ROW  "<<i<<" ....  COL "<<jj1<<" in A1 is COL "<<jj2<<" in A2"<<endl;
-                errors++;
-            }  
-            else if (diff>tol) {
-                cout<<"ROW  "<<i<<" ....  COL "<<jj1<<" Value in A1 is  "<<value1
-                                    <<"    but is   "<<value2<<"  in A2"<<endl;
-                errors++;
-            } 
-          
-		}
-	}
-    if (errors>0) {
-        cout<<endl<<endl<<"*****************  "<<errors<< 
-                       " ERRORS  ***********************" <<endl; 
-       // exit(-1);
-    } 
 }
 
 
@@ -707,19 +632,6 @@ void  VSIIE_Solver::compute_RHS0(const double t, const double * h_vector, double
   }    
   
   
-   
-//**************************************************************************
-// Update intermediate vectors before the next integration step
-//**************************************************************************
-/*void Update_intermediate_vectors(const int order, const int neqn, double** Y, double* Y1)
-{   double * Ytmp=Y[0];
-    for (int i = 1; i < order; i++) {
-        Y[i-1]=Y[i];
-    }    
-    Y[order-1]=Ytmp;
-    cblas_dcopy(neqn, Y1, 1, Y[order-1], 1);
-}*/
-
   //**************************************************************************
   // Update the coarse vector Y1_c from the fine vector Y1_f 
   // by using Richardson extrapolation 
@@ -891,14 +803,26 @@ const bool variable_tstep, int & newton_iters){
   h_coef_idx_F2=coef_idx_F2*h;
 
   compute_matrix(t,h,Y);
+  
+
   // Get initial approximation of Y1=Yidx+h*Yidx
   cblas_dcopy(neqn, Y[idx], 1, Y1, 1); 
   cblas_daxpy(neqn, h, Y[idx], 1, Y1, 1);
   
 
+  //Get initial approximation Y1 using 
+  // Euler method of Y1=Yidx+h*F(Yidx)
+  //double DY[neqn];
+  //cblas_dcopy(neqn, Y[idx], 1, Y1, 1); 
+  //IVP->feval(t,Y1,DY);
+  //cblas_daxpy(neqn, h, DY, 1, Y1, 1);
+  
+  
+  
+
+
   // Modified Newton Iteration to approximate Y1 at the current time step
   double norm = 1.0e23;
-  int it = 0;
   bool convergence = false;
   const double EPSTOL = 1.0e-12;
   const int max_iterations = 200;
@@ -934,7 +858,7 @@ const bool variable_tstep, int & newton_iters){
     
     // Compute the norm of the residual vector x
     norm = cblas_dnrm2(neqn, x->value, 1)/ sqrt((double)neqn);
-    convergence = (norm < EPSTOL) || (it > max_iterations);
+    convergence = (norm < EPSTOL) || (newton_iters > max_iterations);
   }  // End of modified Newton Iteration
   
   //cout<<"........................................<< Newton Iteration= "<<newton_iters<<"  >>"<<endl;
@@ -952,7 +876,7 @@ const bool variable_tstep, int & newton_iters){
 // It assumes a constant time step h
 //***************************************************
 void VSIIE_Solver::Const_dt_Integrate(const double t0, const double tf,
-    const double h, double** Y_, double* Y1)  {        
+    const double h, double** Y_, double* Y1, int * n_steps, int * total_iters)  {        
     //***************************************************
     const double EPSTOL=1.0e-20;
     const int neqn = IVP->get_num_ODEs();
@@ -975,9 +899,11 @@ void VSIIE_Solver::Const_dt_Integrate(const double t0, const double tf,
     for (unsigned i = 0; i < order; i++) h_vector[i] = h;
     // Set the constant stepsize strategy
     bool variable_tstep=false;
-    int N_steps=0;
     double h_now=h;
     bool end=false;
+    // Reset the total number of Newton iterations and steps;
+    *total_iters=0;
+    *n_steps=0;
     //*********  TIME LOOP  ****************
     while (!end) {
     //**************************************
@@ -993,12 +919,14 @@ void VSIIE_Solver::Const_dt_Integrate(const double t0, const double tf,
       //cout<<"Perform a new integration VSIIE-"<<order<<" step with stepsize "<<h_vector[0]<< "with t0="<<t<<endl;
       int  newton_iters;
       Time_Step(t, h_vector, Y, Y1, variable_tstep, newton_iters);
+      *total_iters+=newton_iters;
+      // Increase the number of time steps
+      (*n_steps)++;
+ 
       // Update previous step vector Y
       Update_intermediate_vectors(Y, Y1);
       // Update time t
       t+=h_now;  
-      // Increase the number of time steps
-      N_steps++;
       //Check the end of the time integration
       if (fabs(tf-t)<EPSTOL) {end=true;}
       // cout<<"VSIIE Solution obtained in tf="<<t<<endl;
@@ -1082,15 +1010,15 @@ void VSIIE_Solver::Const_dt_Integrate_SBDF4(const double t0, const double tf,
 void VSIIE_Solver::Variable_Time_Step(const double t, double * h_vector, 
                                      double * h_vector_half, double * h_vector_half2, double ** Y, 
                                      double ** Yf, double * Y1, double * LTE, double *epsilon_c, 
-                                     int& total_iters)
+                                     int * total_iters)
 { const bool  variable_tstep=true;
 
   // COARSE STEP
   int newton_iters; 
   // Reset the total number of Newton iterations
-  total_iters=0;
+  *total_iters=0;
   Time_Step(t, h_vector, Y, Y1, variable_tstep, newton_iters);
-  total_iters+=newton_iters;
+  *total_iters+=newton_iters;
   h_vector_half[idx]=h_vector[idx]/2.0;  
   for (int i=0;i<idx;i++) {
     h_vector_half2[i]=h_vector_half[i+1];
@@ -1099,10 +1027,10 @@ void VSIIE_Solver::Variable_Time_Step(const double t, double * h_vector,
 
   // FINE STEP 1
   Time_Step(t,h_vector_half, Yf, Yf[order], variable_tstep, newton_iters);
-  total_iters+=newton_iters;
+  *total_iters+=newton_iters;
   //FINE STEP 2
   Time_Step(t+h_vector_half[idx], h_vector_half2, &(Yf[1]), Yf[order+1], variable_tstep, newton_iters);
-  total_iters+=newton_iters;
+  *total_iters+=newton_iters;
   // Computation of the LTE vector and the scalar error
   *epsilon_c=compute_LTE(h_vector, Y1, Yf[order+1], LTE);
 
@@ -1116,7 +1044,7 @@ void VSIIE_Solver::Variable_Time_Step(const double t, double * h_vector,
 //***************************************************
 void VSIIE_Solver::Adaptive_dt_Integrate(const double t0, const double tf,
     const double h, double** Y_init, double ** Yf_init, double* Y1, 
-    const double tol, int *nsteps, int * n_isteps, double & av_iters,
+    const double tol, int *nsteps, int * n_isteps, int * n_iters,
     double alpha=0.8, double eta_min= 0.5, 
     double eta_max = 4)  {        
 //***************************************************
@@ -1148,7 +1076,7 @@ void VSIIE_Solver::Adaptive_dt_Integrate(const double t0, const double tf,
   int N_steps=0; 
   int total_isteps=0;
   // Reset the total number of Newton iterations;
-  av_iters=0.0;
+  *n_iters=0;
 
   bool end=false;
   //*********  TIME LOOP  ****************
@@ -1177,8 +1105,8 @@ void VSIIE_Solver::Adaptive_dt_Integrate(const double t0, const double tf,
       // New coarse and fine integration step
       int total_iters;
       Variable_Time_Step(t, h_vector, h_vector_half, h_vector_half2, Y, Yf, Y1, LTE, 
-        &epsilon_c, total_iters);
-      av_iters+=total_iters;
+        &epsilon_c, &total_iters);
+      *n_iters+=total_iters;
 
       // Check the error condition
       double error_diff=epsilon_c-tol;
@@ -1217,7 +1145,6 @@ void VSIIE_Solver::Adaptive_dt_Integrate(const double t0, const double tf,
   //*********************
   *nsteps=N_steps;  
   *n_isteps=total_isteps;
-  av_iters=av_iters/(3*total_isteps); 
   for (unsigned i = 0; i < order; i++)
     delete[] Y[i];
   for (unsigned i = 0; i < (order+2); i++)
