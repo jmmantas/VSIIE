@@ -29,18 +29,32 @@ import os
 
 
 #************************************************************************************
-# Function to generate a plot from solver output files, 
+# Function to generate a plot from solver output files
+# model_name: name of the IVP model
+# neqn: number of ODEs of the IVP model
+# VSIIE results are plotted for accuracy order from VSIIE_min_order to VSIIE_max_order
+# IIE results are plotted for accuracy order from IIE_min_order to IIE_max_order
 #************************************************************************************
 def view (model_name, neqn, VSIIE_min_order, VSIIE_max_order, IIE_min_order, IIE_max_order):
+#************************************************************************************    
+    line_size=7
     x_vals = [[],[],[],[],[],[],[],[]]
     error_vals = [[],[],[],[],[],[],[],[]]
     n_steps_vals = [[],[],[],[],[],[],[],[]]
+
+    x_vals_SBDF = [[],[],[],[]]
+    error_vals_SBDF = [[],[],[],[]]
+    n_steps_vals_SBDF = [[],[],[],[]]
+
+    #Arrays for VSIIE results
     filename=[]
     label_name=[]
     included_solver=[]
+ 
     for i in range(8):
         if (i<4): 
             order = i+1
+            # solver name for VSIIE files
             solver= "VSIIE" + "-" +str(order)
             included_solver.append ( (order >= VSIIE_min_order) and (order <= VSIIE_max_order) )
         else:
@@ -51,14 +65,27 @@ def view (model_name, neqn, VSIIE_min_order, VSIIE_max_order, IIE_min_order, IIE
         filename.append(solver+"-"+model_name+"-"+str(neqn)+".txt")
 
 
+    #Arrays for VSSBDF results
+    filename_SBDF=[]
+    label_name_SBDF=[]
+    included_solver_SBDF=[]
+    for i in range(4):
+        order = i+1
+        # solver name for VSSBDF files
+        solver= "VSSBDF" + "-" +str(order)
+        included_solver_SBDF.append ( (order >= VSIIE_min_order) and (order <= VSIIE_max_order) )
+        label_name_SBDF.append(solver)    
+        filename_SBDF.append(solver+"-"+model_name+"-"+str(neqn)+".txt")
 
+
+    # Processing the data files for VSIIE and IIE
     for i in range(8):
         if included_solver[i]:
             print(f"Processing File : {i} -> {filename[i]}")
             with open(filename[i], 'r') as file:
                 for linea in file:
                     datos = linea.split()
-                    if len(datos) == 4:
+                    if len(datos) == line_size:
                         try:
                             x1 = float(datos[1])
                             e1 = float(datos[2])
@@ -73,15 +100,45 @@ def view (model_name, neqn, VSIIE_min_order, VSIIE_max_order, IIE_min_order, IIE
                 print("No valid data was found in the file.")
                 return
     
-      
-    colors=['black','red','green','blue','black','red','green','b']
-    markers=['o','s', '^','x',   '*','s','D','p','2', '>']
-    plt.figure(figsize=(8, 6))
 
-    
+
+    # Processing the data files for VSSBDF
+    for i in range(4):
+        if included_solver_SBDF[i]:
+            print(f"Processing VSSBDF File : {i} -> {filename_SBDF[i]}")
+            with open(filename_SBDF[i], 'r') as file:
+                for linea in file:
+                    datos = linea.split()
+                    if len(datos) == line_size:
+                        try:
+                            x1 = float(datos[1])
+                            e1 = float(datos[2])
+                            n1= int(datos[3])
+                            x_vals_SBDF[i].append(x1)
+                            error_vals_SBDF[i].append(e1)
+                            n_steps_vals_SBDF[i].append(n1)
+                        except ValueError:
+                            print(f"line ignored due to incorrect format: {linea.strip()}")
+
+            if not x_vals_SBDF[i]:
+                print("No valid data was found in the file.")
+                return
+
+
+
+    colors=['black','red','green','blue','black','red','green','blue']
+    markers=['o','o', 'o','o',   '*','*','*','*']
+   
+    colors_SBDF=['gray','magenta','green','blue']
+    markers_SBDF=['>', '>', '>','>']
+
+
+    plt.figure(figsize=(8, 6))
+    # Plot VSIIE results
     for i in range(0,4):
         if included_solver[i]: 
             plt.plot(x_vals[i], error_vals[i], marker=markers[i], linestyle='-', color=colors[i], label=label_name[i])
+    # Plot IIE results
     for i in range(4,8): 
         if included_solver[i]:
             plt.plot(x_vals[i], error_vals[i], marker=markers[i], linestyle='--', color=colors[i], label=label_name[i])
@@ -93,27 +150,38 @@ def view (model_name, neqn, VSIIE_min_order, VSIIE_max_order, IIE_min_order, IIE
     plt.title("Work-Precision. "+model_name+". N="+str(neqn))
     plt.legend()
     plt.grid(True)
-    plot_file="plot_error" + ".png"
+    plot_file="plot_error_VSIIE-vs-IIE" + ".png"
     plt.savefig(plot_file)
     
+
+
+
     
-    plt.figure()
-    for i in range(0,4): 
-        if included_solver[i]:
-            plt.plot(x_vals[i], n_steps_vals[i], marker=markers[i], linestyle='-', color=colors[i], label=label_name[i])
-    for i in range(4,8): 
-        if included_solver[i]:
-            plt.plot(x_vals[i], n_steps_vals[i], marker=markers[i], linestyle='--', color=colors[i], label=label_name[i])
-   
+    plt.figure(figsize=(8, 6))
+    # Plot VSIIE results
+    for i in range(0,4):
+        if included_solver[i]: 
+            plt.plot(x_vals[i], error_vals[i], marker=markers[i], linestyle='-', color=colors[i], label=label_name[i])
+    # Plot VSSBDF results
+    for i in range(0,4):
+        if included_solver_SBDF[i]: 
+            plt.plot(x_vals_SBDF[i], error_vals_SBDF[i], marker=markers_SBDF[i], linestyle=':', color=colors_SBDF[i], label=label_name_SBDF[i])
+
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel('Error')
-    plt.ylabel('N_Steps')
-    plt.title("Number of Time Steps. "+model_name+". N="+str(neqn))
+    plt.ylabel('runtime')
+    plt.title("Work-Precision. "+model_name+". N="+str(neqn))
     plt.legend()
     plt.grid(True)
-    plot_file="plot_n_steps" + ".png"
+    plot_file="plot_error_VS_Solvers" + ".png"
     plt.savefig(plot_file)    
+
+
+
+   
+
+
 #************************************************************************************
     
 
@@ -123,7 +191,7 @@ def view (model_name, neqn, VSIIE_min_order, VSIIE_max_order, IIE_min_order, IIE
 # Function to run an IIE solver with given parameters
 #************************************************************************************
 def run_IIE_solver(problem, order,  neqn, tf, stepsize, tol, n_repetitions):        
-    command = [ '../IVP_Solver', "const",  str(problem), str(order), str(neqn),
+    command = [ '../IVP_Solver', "IIE",  str(problem), str(order), str(neqn),
         str(tf), str(stepsize), str(tol), str(n_repetitions)]
     try:
         print(f"Executing command: {' '.join(command)}")
@@ -146,7 +214,7 @@ def run_IIE_solver(problem, order,  neqn, tf, stepsize, tol, n_repetitions):
 #************************************************************************************
 def run_VSIIE_solver(problem, order,  neqn, tf, stepsize, tol, n_repetitions, 
                      alpha, eta_min, eta_max):        
-    command = [ '../IVP_Solver', "var",  str(problem), str(order), str(neqn),
+    command = [ '../IVP_Solver', "VSIIE",  str(problem), str(order), str(neqn),
         str(tf), str(stepsize), str(tol), str(n_repetitions), str(alpha), str(eta_min), str(eta_max)]
     try:
         print(f"Executing command: {' '.join(command)}")
@@ -164,6 +232,52 @@ def run_VSIIE_solver(problem, order,  neqn, tf, stepsize, tol, n_repetitions,
 #************************************************************************************
 
 
+#************************************************************************************
+# Function to run a VSIIE solver with given parameters
+#************************************************************************************
+def run_VSSBDF_solver(problem, order,  neqn, tf, stepsize, tol, n_repetitions, 
+                     alpha, eta_min, eta_max):        
+    command = [ '../IVP_Solver', "VSSBDF",  str(problem), str(order), str(neqn),
+        str(tf), str(stepsize), str(tol), str(n_repetitions), str(alpha), str(eta_min), str(eta_max)]
+    try:
+        print(f"Executing command: {' '.join(command)}")
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        print("Solver Output:")
+        print(result.stdout)
+    except FileNotFoundError:
+        print("Error: executable was not found.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing the program:")
+        print(f"Return code: {e.returncode}")
+        print(f"Error exit: {e.stderr}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+#************************************************************************************
+
+
+
+
+#************************************************************************************
+# Function to run a VSABM solver with given parameters
+#************************************************************************************
+def run_VSABM_solver(problem, order,  neqn, tf, stepsize, tol, n_repetitions, 
+                     alpha, eta_min, eta_max):        
+    command = [ '../IVP_Solver', "VSABM",  str(problem), str(order), str(neqn),
+        str(tf), str(stepsize), str(tol), str(n_repetitions), str(alpha), str(eta_min), str(eta_max)]
+    try:
+        print(f"Executing command: {' '.join(command)}")
+        result = subprocess.run(command, capture_output=True, text=True, check=True)
+        print("Solver Output:")
+        print(result.stdout)
+    except FileNotFoundError:
+        print("Error: executable was not found.")
+    except subprocess.CalledProcessError as e:
+        print(f"Error executing the program:")
+        print(f"Return code: {e.returncode}")
+        print(f"Error exit: {e.stderr}")
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+#************************************************************************************
 
 
 
@@ -187,7 +301,7 @@ def run_IIE_instances(problem, order, neqn, tf, stepsize_array, tol, n_repetitio
 #************************************************************************************
 def run_VSIIE_instances(problem, order, neqn, tf, stepsize_array, tol_array, n_repetitions, 
                         alpha_array, eta_min, eta_max):        
-    os_command=f"rm VSIIE-{order}*.txt"
+    os_command=f"rm VSIIE-{order}*.txt;"
     os.system(os_command)
     print(f"........................ Executing VSIIE-{order} Solvers \n")
     i=0
@@ -196,6 +310,27 @@ def run_VSIIE_instances(problem, order, neqn, tf, stepsize_array, tol_array, n_r
                          alpha_array[i], eta_min, eta_max)
         i+=1
     print(f"........................ Finished VSIIE-{order} Solvers \n")
+
+
+
+#************************************************************************************
+# Function to run an VSIIE solver with given parameters, 
+# including a list of stepsizes and tolerances
+#************************************************************************************
+def run_VSSBDF_instances(problem, order, neqn, tf, stepsize_array, tol_array, n_repetitions, 
+                        alpha_array, eta_min, eta_max):        
+    os_command=f"rm VSSBDF-{order}*.txt"
+    os.system(os_command)
+    print(f"........................ Executing VSSBDF-{order} Solvers \n")
+    i=0
+    for tol in tol_array:
+        run_VSSBDF_solver(problem, order, neqn, tf, stepsize_array[i], tol, n_repetitions, 
+                         alpha_array[i], eta_min, eta_max)
+        i+=1
+    print(f"........................ Finished VSSBDF-{order} Solvers \n")
+
+
+
 
 
 #************************************************************************************
@@ -220,44 +355,50 @@ def show_parameters (Problem, IVP_name, Neqn, Tf, stepsize_array, VSIIE_tol_arra
 # Function to run the corresponding experiments,
 #************************************************************************************
 def do_experiments(Problem, IVP_name, Neqn, Tf, FOLDER, stepsize_array, 
-                   VSIIE_tol_array, alpha_array):
-    correct_num_args=5
+                   VSIIE_tol_array, VSSBDF_tol_array, alpha_array):
+    correct_num_args=6
     print(f"Detected {len(sys.argv) - 1} arguments received.")
     if len(sys.argv) != correct_num_args + 1:
         print(f"Error: Expected {correct_num_args} arguments, but {len(sys.argv) - 1} received.")
-        print(f"Usage: {sys.argv[0]}  VSIIE_min_order   VSIIE_max_order  IIE_min_order   IIE_max_order  N_Repetitions")
+        print(f"Usage: {sys.argv[0]}  run(0=only plot, 1=run all) VSIIE_min_order   VSIIE_max_order  IIE_min_order   IIE_max_order  N_Repetitions")
         sys.exit(1) # Exit with error code
 
     parser=argparse.ArgumentParser()
+    parser.add_argument("run",type=int)
     parser.add_argument("VSIIE_min_order",type=int)
     parser.add_argument("VSIIE_max_order",type=int)
     parser.add_argument("IIE_min_order",type=int)
     parser.add_argument("IIE_max_order",type=int)
     parser.add_argument("N_Repetitions",type=int)
     args=parser.parse_args()
-    print(f" CALL: {sys.argv[0]}  {args.VSIIE_min_order}  {args.VSIIE_max_order}  {args.IIE_min_order}  {args.IIE_max_order}  {args.N_Repetitions}")
+    print(f" CALL: {sys.argv[0]}  {args.run} {args.VSIIE_min_order}  {args.VSIIE_max_order}  {args.IIE_min_order}  {args.IIE_max_order}  {args.N_Repetitions}")
 
-    os_command=f"cd ..; make clean;make;cd {FOLDER}"
-    os.system(os_command)
+    
+    if args.run!=0:
+        os_command=f"cd ..; make clean;make;cd {FOLDER}"
+        os.system(os_command)
+    
+        #**********************************************************
+        print (f"........................ Executing IIE Solvers\n")
+        #**********************************************************
+        tol=0.01
+        for order in range(1, 5):
+            if (args.IIE_min_order <= order) and (args.IIE_max_order >= order):
+                run_IIE_instances(Problem, order, Neqn, Tf, stepsize_array[order-1], tol, args.N_Repetitions)
+        #**********************************************************
+        print (f"........................ Executing Variable Stepsize Solvers\n")
+        #**********************************************************
+        eta_min=0.2
+        eta_max=4.0
+        range_factor=0.2
+        for order in range(1, 5):
+            if (args.VSIIE_min_order     <= order) and (args.VSIIE_max_order >= order):
+                run_VSIIE_instances(Problem, order, Neqn, Tf, stepsize_array[order-1], VSIIE_tol_array[order-1], 
+                    args.N_Repetitions, alpha_array[order-1], eta_min, eta_max) 
+                run_VSSBDF_instances(Problem, order, Neqn, Tf, stepsize_array[order-1], VSSBDF_tol_array[order-1], 
+                    args.N_Repetitions, alpha_array[order-1], eta_min, eta_max)
 
 
-    #**********************************************************
-    print (f"........................ Executing IIE Solvers\n")
-    #**********************************************************
-    tol=0.01
-    for order in range(1, 5):
-        if (args.IIE_min_order <= order) and (args.IIE_max_order >= order):
-            run_IIE_instances(Problem, order, Neqn, Tf, stepsize_array[order-1], tol, args.N_Repetitions)
-    #**********************************************************
-    print (f"........................ Executing VSIIE Solvers\n")
-    #**********************************************************
-    eta_min=0.2
-    eta_max=4.0
-    range_factor=0.2
-    for order in range(1, 5):
-        if (args.VSIIE_min_order     <= order) and (args.VSIIE_max_order >= order):
-            run_VSIIE_instances(Problem, order, Neqn, Tf, stepsize_array[order-1], VSIIE_tol_array[order-1], 
-                            args.N_Repetitions, alpha_array[order-1], eta_min, eta_max)
 
     #****************************************************
     print(f"........................ Plotting Results \n")

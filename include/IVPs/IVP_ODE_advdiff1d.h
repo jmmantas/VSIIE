@@ -82,6 +82,14 @@ public:
   void Compute_Matrix_Exact(const double t, double a, double b,
                             double *Y, LIS_MATRIX As);
 
+
+  //**********************************************************************
+  //Compute matrix  A=I-a_J*Jfeval
+  //Jfeval= Jacobian of the function feval defining the rhs of the IVP_ODE
+  //***********************************************************************     
+  void Compute_feval_Matrix_Exact(const double t, const double a_J,  
+                                                  double *Y, LIS_MATRIX As); 
+
   //******************************************************
   // Save the data corresponding to a state vector Y
   // on a file called filename 
@@ -100,7 +108,14 @@ IVP_ODE_advdiff1d::IVP_ODE_advdiff1d(const int nx_points)
   nx=nx_points;
   // Number of ODEs
   neqn=nx;  
+
+  //number of non-zero elements in the Jacobian of 
+  // the stiff component of the IVP_ODE
   nnz=3*neqn;
+
+  //number of non-zero elements in the Jacobian of the full rhs
+  nnz_feval=3*neqn; 
+  
   // Compute Spatial step
   dtx=1.0/nx;
   dtx2=dtx*dtx;
@@ -183,7 +198,7 @@ void IVP_ODE_advdiff1d::F2 (const double t, const double *Y, double *DY)
 
 
 //******************************************************
-//Compute matrix I-a*J1-bJ2 where J1= Jacobian of the Diffusive Term
+//Compute matrix I-a*J1-b*J2 where J1= Jacobian of the Diffusive Term
 // and J2= Jacobian of the reactive term in the IVP_ODE_advdiff1d
 //******************************************************       
 void IVP_ODE_advdiff1d::Compute_Matrix_Exact(const double t, double a, double b,
@@ -225,7 +240,6 @@ void IVP_ODE_advdiff1d::Compute_Matrix_Exact(const double t, double a, double b,
   
 }
 //******************************************************
-
 
 
 //******************************************************

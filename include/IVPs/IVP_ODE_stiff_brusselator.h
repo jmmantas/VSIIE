@@ -95,12 +95,13 @@ public:
   void Compute_Matrix_Exact(const double t, double c1, double c2,
     double *Y, LIS_MATRIX As);
 
-  //******************************************************
-  //Compute matrix Jf= Jacobian of the function 
-  // feval defining the IVP_ODE
-  //******************************************************       
-  void Compute_Feval_Jacobian_exact(const double t,double *Y, 
-                                    LIS_MATRIX As);
+
+  //**********************************************************************
+  //Compute matrix  A=I-a_J*Jfeval
+  //Jfeval= Jacobian of the function feval defining the rhs of the IVP_ODE
+  //***********************************************************************     
+  void Compute_feval_Matrix_Exact(const double t, const double a_J,  
+                                                  double *Y, LIS_MATRIX As); 
 
 
 //******************************************************
@@ -122,8 +123,13 @@ IVP_ODE_stiff_brusselator::IVP_ODE_stiff_brusselator(const int nx_points) {
     neqn = 3 * nx;
 
     // Number of non-zero elements in the Jacobian matrix
-    //nnz = 9 * nx-12;
-    nnz = 14 * nx - 12;
+    // of the stiff components in the IVP_ODE
+    nnz=14 * nx - 12;
+  
+    //number of non-zero elements in the Jacobian of the full rhs
+    nnz_feval=14 * nx - 12;
+    
+    
     dtx = 1.0 / (nx - 1); // Adjusted for boundary conditions
     dtx2 = dtx * dtx;
     dtx_2 = 2*dtx ;
@@ -305,8 +311,6 @@ void IVP_ODE_stiff_brusselator::Compute_Matrix_Exact(const double t, double c1, 
   next_row(ptr, k, row);
  
 }
-
-
 
 //******************************************************
 // Save the data corresponding to a state vector Y

@@ -74,6 +74,15 @@ public:
   void Compute_Matrix_Exact(const double t, double a, double b,
                             double *Y, LIS_MATRIX As);
 
+
+
+  //**********************************************************************
+  //Compute matrix  A=I-a_J*Jfeval
+  //Jfeval= Jacobian of the function feval defining the rhs of the IVP_ODE
+  //***********************************************************************     
+  void Compute_feval_Matrix_Exact(const double t, const double a_J,  
+                                                  double *Y, LIS_MATRIX As); 
+
   //******************************************************
   // Save the data corresponding to a state vector Y
   // on a file called filename 
@@ -92,8 +101,9 @@ IVP_ODE_HIRES::IVP_ODE_HIRES(const int nx_points)
   // Number of ODEs
   neqn=8;  
   // Number of non-zeros in Jacobian of I-c1*J1-c2*J2
-  nnz=22;
-  
+  nnz=22;  
+  //number of non-zero elements in the Jacobian of the full rhs
+  nnz_feval=22; 
 }
   //******************************************************
   // Initialize stage vector Y0 with neqn components
@@ -216,6 +226,7 @@ void IVP_ODE_HIRES::Compute_Matrix_Exact(const double t, double a, double b,
 
 }
 //******************************************************
+
 
 
 //******************************************************

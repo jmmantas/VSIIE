@@ -111,6 +111,15 @@ public:
   void Compute_Matrix_Exact(const double t, double a, double b,
     double *Y, LIS_MATRIX As);
   
+
+  //**********************************************************************
+  //Compute matrix  A=I-a_J*Jfeval
+  //Jfeval= Jacobian of the function feval defining the rhs of the IVP_ODE
+  //***********************************************************************     
+  void Compute_feval_Matrix_Exact(const double t, const double a_J,  
+                                                  double *Y, LIS_MATRIX As); 
+
+
   //******************************************************
   // Save the data corresponding to a state vector Y
   // on a file called filename 
@@ -150,8 +159,14 @@ IVP_ODE_combustion::IVP_ODE_combustion(const int nx_points, const int Type_combu
   nx=nx_points;
   // Number of ODEs
   neqn=nx;
+
   // Number of non-zero elements in the Jacobian matrix
+  // of the stiff components in the IVP_ODE
   nnz=3*nx;
+  
+  //number of non-zero elements in the Jacobian of the full rhs
+  nnz_feval=3*nx;  
+
   // Compute Spatial step
   dtx=(xf-xi)/nx;
   dtx2=dtx*dtx;
@@ -319,9 +334,9 @@ void IVP_ODE_combustion::Compute_Matrix_Exact(const double t, double a, double b
     new_entry(index, value, k, 0   , other);//Jn(nx-1,0)
     new_entry(index, value, k, nx-2 , other);//Jn(nx-1,nx-2)
     new_entry(index, value, k, nx-1 , 1.0-2*other-F2_i);//Jn(nx-1,nx-1)
-    next_row(ptr, k, row);
-    
+    next_row(ptr, k, row);    
   }
+
 
 
 //******************************************************
