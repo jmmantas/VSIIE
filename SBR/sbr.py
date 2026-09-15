@@ -83,6 +83,26 @@ VSIIE_tol_array=[
  [ 1.0e-1,1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5]] #order 4
 #************************************************************************************
 
+#************************************************************************************
+# Tolerance arrays for VSBDF solvers of different orders
+VSSBDF_tol_array=[
+ [ 1.0e-1,  1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 1
+ [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 2
+ [1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 3
+ [ 1.0e-1,1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5]] #order 4
+#************************************************************************************
+
+
+#************************************************************************************
+# Tolerance arrays for VSABM solvers of different orders
+VSABM_tol_array=[
+ [ 1.0e-1,  1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 1
+ [ 1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 2
+ [1.0e-1, 1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5], #order 3
+ [ 1.0e-1,1.0e-2, 1.0e-3, 1.0e-4, 1.0e-5]] #order 4
+#************************************************************************************
+
+
 
 #************************************************************************************
 # Alpha values for VSIIE solvers of different orders
@@ -106,4 +126,4 @@ util.show_parameters(Problem, IVP_name, Neqn, Tf, stepsize_array,
 # Call to run the experiments
 #************************************************************************************
 util.do_experiments(Problem, IVP_name, Neqn, Tf, FOLDER, stepsize_array, 
-                    VSIIE_tol_array, alpha_array)
+                    VSIIE_tol_array, VSSBDF_tol_array, VSABM_tol_array, alpha_array)
