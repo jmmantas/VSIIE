@@ -31,8 +31,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IVP_ODE_combustion.h"
 #include "IVP_ODE_HIRES.h"
 
+
+
+
+
 #include "VSIIE_Solver.h"
+#include "SBDF_Solver.h"
+
+
 #include "utils.h"
+
 using namespace std;
 using namespace std::chrono;
 
@@ -106,7 +114,8 @@ void Init_coarse_Vectors_SBDF4(const int order, const int neqn,  const double t0
   double t2=t0;
   double h_SBDF4=(h<=1.0e-6)?h/2.0:1.0e-6;
   // Init VSIIE solver 
-  VSIIE_Solver * VSIIE_IVP=new VSIIE_Solver(order_SBDF4, IVP);           
+  VSIIE_Solver * VSIIE_IVP=new VSIIE_Solver(order_SBDF4, IVP); 
+  
   for (int i = 1; i < order; i++){
     cblas_dcopy (neqn, Y_init[i-1],1, Y_init_SBDF4[0] , 1);
     Init_coarse_Vectors_RK(order_SBDF4, neqn, t2, h_SBDF4, IVP, Y_init_SBDF4); 
@@ -346,15 +355,19 @@ void create_folder(const std::string & route) {
 
 //******************************************************
 // Save in a file called "filename" the data corresponding 
-// to error, runtime and number of stepsizes for that experiment 
+// to error, runtime, number of stepsizes 
+// for that experiment 
 //****************************************************** 
-void save_error_runtime_nsteps(const std::string& filename,  const double tol_h, 
-      const double error, const double runtime, const int nsteps) {
+void save_diagnostics(const std::string& filename,  const double tol_h, 
+      const double error, const double runtime, const int nsteps,
+      const int n_rejected, const int n_implicit_solves, 
+      const double av_newton_iters_per_solve) {
 
   ofstream output_file( filename ,std::ios::app);        
   if (output_file.is_open()) {
     // Write a line and its endline
-    output_file << tol_h << "     " << error<< "     " << runtime<< "     " << nsteps <<endl; 
+    output_file << tol_h << "     " << error<< "     " << runtime<< "     " << nsteps
+    << "     " << n_rejected << "     " << n_implicit_solves << "     " << av_newton_iters_per_solve <<endl; 
     output_file.close(); // Close the file
   } 
   else {
@@ -366,33 +379,42 @@ void save_error_runtime_nsteps(const std::string& filename,  const double tol_h,
 
 //******************************************************
 // Run experiments for a particular IVP problem and a particular 
-// VSIIE/IIE solver  obtaining information
-// tol argument only makes sense when is_adaptive=true
+// solver  obtaining information
+// tol argument only makes sense for VS Solvers (VSIIE, VSSBDF) 
+// and it is ignored for IIE solver
 //****************************************************** 
-void perform_experiments(const int order,  IVP_ODE* IVP,  VSIIE_Solver * VSIIE_IVP, 
+void perform_experiments(const int order,  IVP_ODE* IVP, 
     const double t0, const double tf, const double h, const double * Y1_solut, 
-    const double tol , const int n_repetitions, const bool is_adaptive, 
+    const double tol , const int n_repetitions, string solver, 
     const double alpha, const double eta_min, const double eta_max) {  
 
-  string solver;
-  solver=is_adaptive ? "VSIIE":"IIE";
 
-  // Initial and final time instants;
+  // Initial and final time instants for the particular solver;
   time_ns start,end;
-   
+  
   const int neqn = IVP->get_num_ODEs();
-  // Declare vector Y1 to store the numerical approximation to the solution	 
+  // Declare vector Y1 to store the numerical approximation to the solution
+  // with a particularsolver  	 
   double * Y1 = new double[neqn];
 
-  // n_steps: Number of valid stepsizes  
-  int n_steps=0;
-  // n_isteps: Total number of stepsizes (only for VSIIE)
-  int n_isteps;
+  const bool VS_Solver= (solver=="VSIIE" or solver=="VSSBDF");
+  const bool IIE_Solver= (solver=="IIE");
 
-  // n_iters: Average Number of Newton iterations
-  double  n_iters;
+
+  // Number of valid stepsizes  
+  int n_steps;
+  // Total number of stepsizes (only for Variable stepsize)
+  int n_isteps;
+  // n_iters: Number of Newton iterations
+  int  n_iters;
   // error in the numerical solution and runtime    
-  double error=0.0,runtime=0.0;
+  double error, runtime;
+  // Number of implicit solves
+  int n_implicit_solves;
+  // Average number of Newton iterations per implicit solve
+  double av_newton_iters_per_solve;
+  // Number of rejected stepsizes
+  int n_rejected;
     
   cout<< "_____________________________________________________________________"<<endl;
   cout<<"_________________ "<<solver<<"-"<<order<<" _________________"<<endl;
@@ -404,84 +426,107 @@ void perform_experiments(const int order,  IVP_ODE* IVP,  VSIIE_Solver * VSIIE_I
   Setup_initial_vectors(order, neqn, Y_init);
   // Setup fine initial vectors Yf_init 
   Setup_initial_vectors(order+2, neqn, Yf_init);
+
   // Approximation of the intermediate step initial values 
   // using RK4 and very small stepsize
-  //IVP->init(Y_init[0]); 
-  //Init_coarse_Vectors_RK(order, neqn,  t0, h,  IVP, Y_init);    
-  //if (is_adaptive){Init_fine_Vectors_RK(order, neqn,  t0, h,  IVP, Y_init, Yf_init);}
-
   Init_coarse_Vectors_SBDF4(order, neqn,  t0, h,  IVP, Y_init);   
-  if (is_adaptive){Init_fine_Vectors_SBDF4(order, neqn,  t0, h,  IVP, Y_init, Yf_init);} 
+  if (VS_Solver){Init_fine_Vectors_SBDF4(order, neqn,  t0, h,  IVP, Y_init, Yf_init);} 
   
 
   //******************************************************************************
   // Loop to obtain the minimum of  n_repetitions tests
   for (int j = 0; j < n_repetitions; j++){
   //******************************************************************************  
-    double & ref_n_iters=n_iters;
     start = high_resolution_clock::now();
-
-    if (is_adaptive){
+    if (solver=="VSIIE")  {
+      VSIIE_Solver * VSIIE_IVP =new VSIIE_Solver(order, IVP);
       VSIIE_IVP->Adaptive_dt_Integrate(t0, tf, h, Y_init, Yf_init, Y1,
-        tol, &n_steps, &n_isteps, ref_n_iters, alpha, eta_min, eta_max);
+          tol, &n_steps, &n_isteps, &n_iters, alpha, eta_min, eta_max);
+      delete VSIIE_IVP;
     }
-    else { 
-      VSIIE_IVP->Const_dt_Integrate(t0, tf, h, Y_init, Y1);
-      n_steps=ceil((tf-t0)/h); 
+    else   if (solver=="IIE") {
+      VSIIE_Solver * VSIIE_IVP =new VSIIE_Solver(order, IVP);
+      VSIIE_IVP->Const_dt_Integrate(t0, tf, h, Y_init, Y1, &n_steps, &n_iters);
+      //n_steps=ceil((tf-t0)/h)-order+1; // Number of valid stepsizes
+      delete VSIIE_IVP; 
     }
+    else   if (solver=="VSSBDF") {
+      SBDF_Solver  * VSSBDF_IVP=new SBDF_Solver(order, IVP);
+      VSSBDF_IVP->Adaptive_dt_Integrate(t0, tf, h, Y_init, Yf_init, Y1,
+          tol, &n_steps, &n_isteps, &n_iters, alpha, eta_min, eta_max);
+      delete VSSBDF_IVP;
+    } 
+    else{cerr << "Unknown solver: " << solver << endl; return;}
+
     end = high_resolution_clock::now();
-   
-    // Print Y1 for debugging
-   //cout << "Numerical solution Y1 at t=tf: " << endl;
-   //for (int i = 0; i < neqn; ++i) {    
-    //  cout << Y1[i] << endl; 
-    //} 
-    
 
     // Compute the difference between the numerical solution and the reference solution
     // Only for th 1st iteration
     if (j==0){
       cblas_daxpy(neqn, -1.0, Y1_solut, 1, Y1, 1); 
-      error = cblas_dnrm2(neqn, Y1, 1);
+      error = cblas_dnrm2(neqn, Y1, 1); 
+    
     }
     const double current_runtime=duration_cast<nanoseconds>(end - start).count() * 1e-9;
     runtime = (j==0) ?current_runtime: min(runtime,current_runtime);  
+
   }
 	 
   cout <<endl<< IVP->get_name()<<" with Neqn = " <<neqn<<"......"<<solver<<"-"<<order<<endl;
 
-  // Output results           
-
-  if (is_adaptive){
+  if (VS_Solver) {
+    // Output results           
+    n_implicit_solves= n_isteps*3;
+    n_rejected= n_isteps-n_steps;
+    av_newton_iters_per_solve= (double)n_iters/n_implicit_solves;
+    cout << endl<<"***** "<<solver<<" RESULTS******";
     cout << endl<<"***** H0 = " << setw(4) <<h<<"******"; 
-    cout <<".. N_STEPS = " << n_steps<< "...";
-    cout <<".. N_TOT_STEP = " << n_isteps;  
-    cout <<".. Av. Newton iters = " << n_iters<<endl; 
+    cout <<".. N_ACCEPTED = " << n_steps<< "...";
+    cout <<".. N_REJECTED = " << n_rejected<< "...";
+    cout <<".. N_TOT_STEP = " << n_isteps<<endl;
+    cout <<".. N_IMPLICIT_SOLVES = " << n_implicit_solves;
+    cout <<".. Av. Newton iters/solve = " << av_newton_iters_per_solve<<endl; 
     cout <<"*****  TOL=" <<setw(4) <<tol<<"******";          
     cout <<"   ....ERROR= "  << setw(3)<< error;
     cout <<"   ....RUNTIME= "<<  setw(3)<<runtime;
     cout<<endl;
   }
   else {
+    n_implicit_solves= n_steps;
+    n_rejected=0;
+    av_newton_iters_per_solve= n_iters>0 ? (double)n_iters/n_implicit_solves : 0 ;
+    cout << endl<<"***** "<<solver<<" RESULTS******";
     cout << endl<<"***** FIXED H=" <<setw(4) <<h<<"******"; 
+    cout <<"   ....NSTEPS= "<< setw(3)<<n_steps<<endl;
+    cout <<".. N_IMPLICIT_SOLVES = " << n_steps;
+    cout <<".. Av. Newton iters/solve = " << av_newton_iters_per_solve<<endl; 
     cout <<"   ....ERROR= "  << setw(3)<< error;
     cout <<"   ....RUNTIME= "  <<  setw(3)<<runtime;
-    cout <<"   ....NSTEPS= "<< setw(3)<<n_steps<<endl;
     cout<<endl;
   }  
 
-  cout << setw(3)<< error << "      " <<  setw(3)
+                                
+  cout<<"____________________________________________________________________________________"<<endl;
+
+
+  cout << solver <<" ::   "<<setw(3)<< error << "      " <<  setw(3)
                        <<runtime<< "      " <<  setw(3)<<n_steps<<endl;                                
   cout<<"____________________________________________________________________________________"<<endl;
 
-  const double tol_h= is_adaptive ? tol : h;
-  save_error_runtime_nsteps(solver+"-"+to_string(order)+"-"+IVP->get_name()+ "-" + to_string(neqn) + 
-                                                                     ".txt",  tol_h, error, runtime, n_steps);
-    
+
+  const double tol_h= VS_Solver ? tol : h;
+  
+  save_diagnostics(solver+"-"+to_string(order)+"-"+IVP->get_name()+ 
+                        "-" + to_string(neqn) + ".txt",  tol_h, 
+                        error, runtime, n_steps,n_rejected, 
+                        n_implicit_solves, av_newton_iters_per_solve);
+  
   // Free vectors in dynamic memory	
   Free_initial_vectors(order, Y_init);
   Free_initial_vectors(order+2, Yf_init);
   delete[] Y1;
+
+
 }
 
 
@@ -501,24 +546,29 @@ int main(int argc, char** argv)
   double alpha, eta_min, eta_max;
   int n_repetitions;
   bool error=false;
-  string const_var;
+  string solver;
+
 
   if (num_args<9) {
     error=true; cerr << "Invalid number of arguments" << endl<<endl;
   }
   else {
     // Stores the value of the program parameters in the corresponding variables
-    const_var=argv[1]; // Variable Stepsize("var") or constant ("const")
-    if (const_var!="var" && const_var!="const") {
-      cerr << "Invalid const_var parameter. Please select 'var' or 'const'." << endl;
+    solver=argv[1]; // Particular solver to perform the time integration (VSIIE, IIE, VSSBDF)
+    
+    const bool VS_Solver= (solver=="VSIIE"  or solver=="VSSBDF");
+    const bool IIE_Solver= (solver=="IIE");
+
+    if  (!VS_Solver && !IIE_Solver) {
+      cerr << "Invalid solver parameter. Please select a value in {'VSIIE', 'IIE', 'VSSBDF'}." << endl;
       error=true;
     }
     else { 
-      if ((const_var=="const" && num_args!=9) || 
-          (const_var=="var" && (num_args<9 || num_args>12)) ) {
+      if ((IIE_Solver && num_args!=9) || 
+          (   VS_Solver && (num_args<9 || num_args>12)) ) {
         error=true; cerr <<endl<< "Invalid number of arguments!!" << endl;
       }  
-      if (const_var=="var"){
+      if (VS_Solver) {
         alpha=0.8; // Default value of alpha
         eta_min=0.5; // Default value of eta_min
         eta_max=4; // Default value of eta_max
@@ -537,10 +587,10 @@ int main(int argc, char** argv)
       }
       Neqn = atoi(argv[4]); // Number of ODEs
       tf = atof(argv[5]);   // Final time
-      h = atof(argv[6]); // Initial/Constant stepsize for VSIIE/IIE method
+      h = atof(argv[6]); // Initial/Constant stepsize for the method
       tol = atof(argv[7]); // Tolerance
       n_repetitions=atof(argv[8]); // Number of repetitions
-      if (const_var=="var") {
+      if (VS_Solver) {
         if(num_args>=10){
           alpha = atof(argv[9]); // Alpha parameter for the adaptive time-stepping strategy
           if (alpha<0 || alpha>1){
@@ -558,11 +608,12 @@ int main(int argc, char** argv)
   if (error) {
     // Tell the user how to run the program
     cerr << endl<<"Usage: " << argv[0] << 
-      "<const_var> <problem id.> <order> <Neqn> <tf>  <stepsize> <tol> <num_reps> <alpha> <eta_min> <eta_max>" 
+      " <Solver> <problem id.> <order> <Neqn> <tf>  <stepsize> <tol> <num_reps> <alpha> <eta_min> <eta_max>" 
                       << endl<<endl;
-    cerr << "<const_var>: " <<endl;
-    cerr << "             const: constant stepsize (IIE method is used)" <<endl;
-    cerr << "             var: variable stepsize (VSIIE method is used)" << endl;
+    cerr << "<Solver>: " <<endl;
+    cerr << "             IIE: A constant stepsize IIE method is used" <<endl;
+    cerr << "             VSIIE: A Variable Stepsize IIE (VSIIE) method is used" << endl;
+    cerr << "             VSSBDF: A Variable Stepsize Semiimplicit BDF (VSSBDF) method is used" << endl;
     cerr << endl;
 
     cerr << "<problem.id>= " <<endl;
@@ -574,10 +625,10 @@ int main(int argc, char** argv)
     cerr << "<Neqn>: Number of ODEs " <<endl;
     cerr<<endl;
 
-    cerr << "<stepsize>: It denotes the constant stepsize if const_var=const and the initial stepsize if const_var=var" << endl;
+    cerr << "<stepsize>: It denotes the constant stepsize if Solver is IIE, and the initial stepsize otherwise." << endl;
     cerr << endl;
 
-    cerr << "<tol>: Error tolerance which it is only used for VSIIE (const_var=var)" <<endl;
+    cerr << "<tol>: Error tolerance which it is only used for VSIIE and VSSBDF." <<endl;
     cerr << endl;
 
     cerr << "<num_reps>:  Number of repetitions of the experiment (to obtain the minimum runtime)" <<endl;
@@ -644,17 +695,12 @@ int main(int argc, char** argv)
   // Obtain the reference solution from a file or produce 
   // it and save it in a file if the file does not exist
   Obtain_reference_solution(ref_sol_filename, IVP, t0, tf, Y1_RK);
-
-  // Init VSIIE solver 
-  VSIIE_Solver * VSIIE_IVP=new VSIIE_Solver(order, IVP);
-
     
-  // Run the experiments fot a particular VSIIE-order solver and IVP
-  perform_experiments(order, IVP, VSIIE_IVP, t0, tf, 
-                     h,  Y1_RK, tol, n_repetitions, const_var=="var", 
+  // Run the experiments for a particular solver and IVP
+  perform_experiments(order, IVP, t0, tf, 
+                     h,  Y1_RK, tol, n_repetitions, solver, 
                      alpha, eta_min, eta_max);
-       
-  delete VSIIE_IVP;                     
+
   delete[] Y1_RK;
  
   //Finalize LIS environment 

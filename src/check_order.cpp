@@ -267,7 +267,8 @@ int main(int argc, char** argv)
     //******************************************************************************
         Init_Vectors(order,neqn,  t0, h0,  IVP, Y_init, Yf_init);   
         start = high_resolution_clock::now();
-        VSIIE_IVP->Const_dt_Integrate(t0, tf, h0, Y_init, Y1_variable);
+        int total_iters, n_steps;
+        VSIIE_IVP->Const_dt_Integrate(t0, tf, h0, Y_init, Y1_variable, &n_steps, &total_iters);
         end = high_resolution_clock::now();
         runtime[i] = duration_cast<nanoseconds>(end - start).count() * 1e-9;
         // Compute the difference between the numerical solution and the reference solution
