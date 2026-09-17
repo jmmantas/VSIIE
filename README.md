@@ -1,5 +1,13 @@
 # VSIIE:  Variable Stepsize Implicit-Implicit-Explicit (IIE)  Solvers in C++
 **VSIIE** software package includes the C++ implementation of a family of Variable-Stepsize 3-additive Implicit-Implicit-Explicit methods to solve stiff IVP-ODEs derived from  Advection-Diffusion-Reaction Models. 
+The Implicit-Implicit-Explicit (IIE) solvers  are a family of high-order time integration methods designed
+to efficiently and accurately solve stiff systems of ordinary differential equations (ODEs) that often
+arise from the spatial discretization of relevant models based on partial differential equations (PDEs)
+such as diffusion-reaction-advection (DRA) models, which can be divided into three separate terms.
+Here, the IIE solvers are extended to allow for variable stepsize, resulting in the VSIIE solvers.
+In addition, an implementation of Variable Stepsize Semi-implicit Backward Differentiation Formula (VSSBDF) solvers 
+is also included for the purposes of experimental comparison.
+
 
 The IVP-ODE  is given by: 
 
@@ -42,3 +50,15 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+## References
+
+- Raed Ali Mara’Beh, J.M. Mantas, P. González, and Raymond J. Spiteri. Performance comparison
+of variable-stepsize IMEX SBDF methods on Advection-Diffusion-Reaction models. Computers &
+Mathematics with Applications, 190:41–56, 2025.
+
+- Raed Ali Mara’Beh, J.M. Mantas, and Raymond J. Spiteri. Variable-stepsize 3-additive linear multistep
+methods on Diffusion-Reaction-Advection models. Submitted to IEEE Access, 2026.
+
+- Raed Ali Mara’Beh, Raymond J. Spiteri, P. González, and José M. Mantas. 3-additive linear multi-step
+methods for Diffusion-Reaction-Advection models. Applied Numerical Mathematics, 183:15–38, 2023.
