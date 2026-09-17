@@ -1,0 +1,415 @@
+%% 
+\documentclass[preprint,1p]{article}
+%\usepackage[left=1cm, right=1cm, top=2cm, bottom=2cm]{geometry}
+\usepackage{geometry}
+\usepackage{hyperref}
+
+%% Use the option review to obtain double line spacing
+%% \documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+
+%% For including figures, graphicx.sty has been loaded in
+%% elsarticle.cls. If you prefer to use the old commands
+%% please give \usepackage{epsfig}
+
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amssymb}
+\usepackage{epsfig}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers.
+%% \usepackage{lineno}
+%\usepackage{CJK}
+\usepackage{amssymb}
+\usepackage{latexsym,bm}
+\usepackage[tbtags]{amsmath}
+\usepackage{amssymb}
+\usepackage{graphicx,subfigure}
+\usepackage{enumerate} 
+\usepackage{fancyhdr}
+\usepackage{float}
+\usepackage{cite}
+\usepackage{tabularx}
+\usepackage[flushleft]{threeparttable}
+\usepackage{booktabs}
+\usepackage{dcolumn}
+\usepackage{graphicx}
+\usepackage{wrapfig}%(P227)
+\usepackage{multicol}
+\usepackage{verbatim}
+\usepackage{mathrsfs}
+
+\usepackage{multirow}
+\usepackage{IEEEtrantools}
+\usepackage{graphicx}
+
+
+\usepackage{listings}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{setspace}
+\usepackage{listings}
+\usepackage{array}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{todonotes}
+\newcommand{\TODO}[2][]{\todo[inline, #1]{#2}}
+
+\renewcommand{\sfdefault}{phv}                         
+\renewcommand{\rmdefault}{ptm}
+\renewcommand{\ttdefault}{pcr}
+\renewcommand{\normalfont}{}
+
+
+
+\newcommand{\place}[2]{ 
+	\vspace{0.5cm}
+	\begin{center}
+		{\bf \large Place  #1 \ref{#2} here }
+	\end{center}
+	\vspace{0.5cm}
+}
+
+
+\newcommand{\makenumber}[2]{ 
+	\newpage
+	%\thispagestyle{empty}
+	%\adDtocounter{page}{-1}
+	%{\bf \large Author: {\it Jose Miguel Mantas Ruiz}}
+	%{\bf \large #1 \ref{#2}}
+	%\newpage
+}
+
+
+\newcommand{\tablecaption}[1]{\centering{\bf #1} \vspace{-0.5cm} }
+
+
+
+\usepackage{float}
+\newfloat{algorithm}{t}{lop}
+\DeclareMathOperator{\arcsinh}{arcsinh}
+\DeclareMathOperator{\arccosh}{arccosh}
+\DeclareMathOperator{\arctanh}{arctanh}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcommand{\pythode}{\texttt{pythODE}}
+\newcommand{\pypp}{\texttt{pythODE++}}
+\newcommand{\rodas}{RODAS}
+\newcommand{\radau}{RADAU5}
+\newcommand{\adolc}{\texttt{ADOL-C}}
+\newcommand{\umfpack}{\texttt{UMFPACK}}
+\newcommand{\colpack}{\texttt{ColPack}}
+\newcommand{\cusp}{\texttt{CUSP}}
+\newcommand{\order}[1]{\mathcal O \big( #1 \big)}
+\newcommand{\by}{\mathbf y}
+\newcommand{\byt}{\mathbf{\tilde y}}
+\newcommand{\bphi}{\boldsymbol \Phi}
+\newcommand{\bpsi}{\boldsymbol \Psi}
+\newcommand{\deriv}[2]{\frac{\textrm{d} #1}{\textrm{d} #2}}
+\newcommand{\derivn}[3]{\frac{\textrm{d}^{#3} #1}{\textrm{d} #2^{#3}}}
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\pderivn}[3]{\frac{\partial^{#3} #1}{\partial #2^{#3}}}
+\newcommand{\mpd}[3]{\frac{\partial^2 #1}{\partial #2 \partial #3}}
+\newcommand{\Dt}{\Delta t}
+
+\newcommand{\bs}{\textbackslash{}}
+
+
+
+\newcommand{\NEW}[1]{\textcolor{black}{#1}}
+\newcommand{\RevOne}[1]{\textcolor{black}{#1}}
+\newcommand{\NOTE}[1]{\fcolorbox{yellow}{red}{#1}}
+
+%\newenvironment{NEWB}  {\begin{color}{red}} { \end{color}}
+
+\newcommand{\RevTwo}[1]{\textcolor{black}{#1}}
+
+\newenvironment{NEWB}{\begin{color}{black}} { \end{color}}
+
+\begin{document}
+
+%
+
+\title{ \bf User Manual for the VSIIE solvers}
+
+\maketitle 
+
+\begin{abstract}
+
+This document provides a user manual for a software framework 
+that implements different Variable Stepsize Implicit-Implicit-Explicit (VSIIE) solvers.
+The Implicit-Implicit-Explicit (IIE) solvers \cite{MARABEH2023} are a family of high-order time integration methods designed
+to efficiently and accurately solve stiff systems of ordinary differential equations (ODEs) that often
+arise from the spatial discretization of relevant models based on partial differential equations (PDEs)
+such as diffusion-reaction-advection (DRA) models, which can be divided into three separate terms.
+Here, the IIE solvers are extended to allow for variable stepsize, resulting in the VSIIE solvers.
+In addition, an implementation of Variable Stepsize Semi-implicit Backward Differentiation Formula (VSSBDF) solvers 
+ \cite{MARABEH2025} is also included for the purposes of experimental comparison.
+
+\end{abstract}
+
+
+\section{User manual}
+
+The user manual describes how to use the software framework and several \texttt{Python} scripts 
+developed to perform automatically experiments to compare the performance of the 
+fixed stepsize IIE  methods \cite{MARABEH2023},the  variable stepsize VSSBDF methods \cite{MARABEH2025}, and the variable stepsize 
+VSIIE  methods \cite{MARABEH2026}.
+
+\subsection{Building and Calling the solver}
+
+The executable of the solver can be generated by typing {\tt make} in the main folder (usually named {\tt VSIIE}) 
+where the source code is located.  This will generate the executable file called {\tt IVP\_Solver} in the same folder.
+
+The solver can be called from the command line in a terminal window.  The call follows the following format:
+
+\vspace{0.3cm}
+\framebox[1.1\width]{\centering
+
+ {\bf IVP{\_}Solver} 
+ {\em Solver \hfill problem{\_}id. \hfill order \hfill Neqn \hfill tf \hfill stepsize \hfill tol \hfill num{\_}reps \hfill
+  alpha \hfill eta{\_}min  \hfill eta{\_}max}	
+}
+\vspace{0.3cm}
+
+\noindent where:
+
+\begin{itemize}
+
+    \item {\em Solver}: It denotes the type of solver to be used. 
+        The provided values can be:
+	    \begin{itemize}
+			\item {\tt IIE}: A constant stepsize IIE method is used.
+            \item {\tt VSIIE}: A Variable Stepsize IIE (VSIIE) method is used.
+            \item {\tt VSSBDF}: A Variable Stepsize Semiimplicit BDF (VSSBDF) method is used.
+	    \end{itemize} 
+
+	\item {\em problem\_id.}: It denotes the mathematical model to be solved. The provided values can be:
+	    \begin{itemize}
+		    \item {\tt 0}: 1D Advection-Diffusion.	
+		    \item {\tt 1}: Stiff Brusselator.
+		    \item {\tt 2}: FKPP Combustion.		
+		    \item {\tt 3}: Ignition Combustion.
+		    \item {\tt 4}: Fisher Combustion.
+		    \item {\tt 5}: High Irradiance RESponse (HIRES) problem \cite{HIRES}.
+		\end{itemize}
+
+    \item {\em order}: It denotes the order of the VSIIE/IIE method to be used (1, 2, 3  or 4).
+
+	\item {\em Neqn}: It denotes the number of ODEs in the system to be solved 
+	(It is important not to confuse this with the number of grid points.).
+	
+	\item {\em tf}: It denotes the final simulation time. 
+
+    \item {\em stepsize}: It denotes the constant stepsize if const\_var=const (IIE method)  
+	                 and the initial stepsize if const\_var=var (VSIIE method)
+
+    \item {\em tol}: Error tolerance which it is only used for VSIIE (const\_var=var)
+
+    \item {\em num\_reps}:  Number of repetitions of the experiment (the experiment is repeated several times in oprder 
+	to obtain a report the minimum runtime of all repetitions).
+
+    \item {\em alpha eta\_min eta\_max} (Optional):  Parameters $\alpha$, $\eta_{\min}$ and $\eta_{\max}$ of 
+	the adaptive time-stepping strategy (by default: $\alpha=0.8$, $\eta_{\min}=0.5$ and $\eta_{\max}=4$).
+
+\end{itemize}
+
+Therefore, each call to the solver is applied to solve a particular IVP model instance using a particular method 
+(VSIIE, VSSBDF or IIE) of a given order.
+
+When the solver is called, generates output by the screen and in output files.
+The first time the solver is called for a particular problem and final time, 
+it creates a folder called {\tt data} in the same folder where the executable is located and
+generates a text file where the reference solution for this problem instance is saved. 
+This reference solution is computed by using the VSSBDF method of order 4 with a very small tolerance of 
+$10^{-6}$. Thus, the reference solution
+data can be reused in subsequent calls of the solver for the same problem instance, avoiding recomputation.
+
+After running the solver, it generates a line with data in a text output file with {\tt .txt} extension, whose name
+depends on the particular IVP model, method and final time. This output file is located in the same folder of the executable.
+The output file contains the following data in each line (separated by several spaces):
+\begin{itemize}
+\item {\bf For VSIIE and VSSBDF}: [tolerance] \quad [error] \quad  [Minimum runtime] \quad  [Number of time steps] 
+\quad  [Number of rejected time steps] \quad [Number of accepted time steps]
+\quad [Average number of Newton iterations per implicit solve] 
+
+\item {\bf For IIE}:  [Constant stepsize] \quad [Error] \quad [Minimum runtime] \quad [Number of time steps]
+\quad  [Number of rejected time steps=0] \quad [Number of accepted time steps]
+\quad [Average number of Newton iterations per implicit solve] 
+
+\end{itemize}
+
+
+\subsection	{The scripts}	
+There is a \texttt{Python} script provided to run automatically the experiments corresponding to each particular mathematical IVP model 
+and generate the corresponding plots (work-precision and time-steps).
+Each script runs the experiments for the IIE, VSSBDF and VSIIE  methods using different parameters. Each \texttt{Python} script must be called 
+in the particular folder where the script is located (although the user can call it from other locations if he creates a new folder, copies the script 
+to the new folder and specifies what is the name of the new folder in the script). The location and correspondin model of the particular scripts 
+are given in Table \ref{Scripts_table}.
+
+
+
+\begin{table}[h!]
+	\caption{Data about the particular python scripts}{\label{Scripts_table}}
+	\centering 
+			\begin{tabular}{|c|c|c|}
+			\hline
+			{\bf Script Name}       & {\bf Folder}       & {\bf Model   } \\ \hline
+			{\tt adr.py}      & {\tt ADR}    & 1D Advection-Diffusion \\ \hline
+			{\tt sbr.py}      & {\tt SBR}    & Stiff Brusselator \\ \hline
+			{\tt fkpp.py}     & {\tt FKPP}   & FKPP Combustion \\ \hline
+			{\tt ignition.py} & {\tt IGNIT}  & Ignition Combustion \\ \hline
+			{\tt fisher.py}   & {\tt FISHER} & Fisher Combustion \\ \hline
+			{\tt hires.py}   & {\tt HIRES}   & High Irradiance RESponse (HIRES) problem \\ \hline
+		\end{tabular}
+\end{table}
+
+
+For each \texttt{Python} script, the user must define the following variables 
+which define the experiments to be run:
+
+\begin{itemize}
+\item {\tt Problem}: It denotes the problem id (0 to 4) corresponding to the mathematical IVP model.
+\item {\tt IVP\_name}: It denotes the name of the mathematical IVP model. The provided values can be:
+	    \begin{itemize}
+		    \item {\tt "1D\_Adv-Diff"}: 1D Advection-Diffusion.	
+		    \item {\tt "stiff\_Brusselator"}: Stiff Brusselator.
+		    \item {\tt "FKPP"}: FKPP Combustion.		
+		    \item {\tt "Ignition"}: Ignition Combustion.
+		    \item {\tt "Fisher"}: Fisher Combustion.
+		    \item {\tt HIRES}: High Irradiance RESponse (HIRES) problem.
+		\end{itemize}
+\item {\tt Neqn}: It denotes the number of ODEs in the system to be solved 
+  (It must be the the number of equations in the chosen IVP model, not the number of grid points).
+
+\item {\tt Tf}: It denotes the final simulation time.
+
+\item {\tt FOLDER}: It denotes the folder name where the experiments will be run 
+  (It must be the folder where the chosen \texttt{Python} script is located). For instance, "ADR" for the 1D Advection-Diffusion model.
+
+\item {\tt stepsize\_array}: It denotes the 2D array of constant stepsizes to be used for the IIE methods of different orders. 
+It is also used to define the initial stepsizes for the VSIIE methods of different orders.
+For instance, {\tt stepsize\_array[0]} contains the array of constant stepsizes for the fisrst order IIE method and the initial 
+stepsizes for the first order VSIIE method.
+
+\item {\tt VSIIE\_tol\_array}: It denotes the array of error tolerances to be used for the VSIIE methods of different orders.
+For ADR, the definition of this array can be as follows: 
+
+
+
+\begin{small}
+$stepsize\_array=[$
+\begin{align*}
+& [7.5e-3, 1e-3, 5e-4, 1.0e-4, 5e-5, 1e-5, 5e-6, 1e-6, 5e-7, 1e-7], \#order 1\\
+& [5e-2, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 1e-3, 5e-4, 1e-4, 5e-5, 1e-5, 5e-6, 1e-6],  \#order 2\\
+& [1e-1, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 1e-3, 5e-4, 1e-4],  \#order 3\\
+& [1e-1, 7.5e-2, 5e-2, 2.5e-2, 1e-2, 7.5e-3, 5e-3, 1e-3, 5.0e-4]]   \#order 4	
+\end{align*}
+\end{small}
+
+
+\item{\tt VSSBDF\_tol\_array}: It denotes the array of error tolerances to be used for the VSSBDF 
+methods of different orders. It is defined in the same way as {\tt VSIIE\_tol\_array}. 
+
+
+\item {\tt alpha\_array}: It denotes the array of values which indicates the $\alpha$ parameter values (which affects to the the time-stepping 
+algorithm) to be used for each particular experiment of the  VSIIE methods of different orders.
+For ADR, the definition of this array can be as follows:
+
+\begin{small}
+$alpha\_array=[$
+\begin{align*}
+	&[0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, 0.8],   \#order 1\\
+	&[0.4, 0.4, 0.4, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6, 0.6], \#order 2\\
+	&[0.3, 0.3, 0.4, 0.4, 0.4, 0.4, 0.4, 0.4], \#order 3 \\
+	&[0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3 ]]  \#order 4			
+\end{align*}
+\end{small}
+
+\end{itemize}
+
+The arrays {\tt stepsize\_array}, {\tt VSIIE\_tol\_array} and {\tt alpha\_array} must have the same number of elements for each order.
+
+
+\subsection{Calling the \texttt{Python} scripts}
+Each \texttt{Python} script can be called from the command line in a terminal window (being on the folder where the script is located).  
+The call has the following format:
+
+
+\vspace{0.3cm}
+\framebox[1.1\width]{\centering
+{\bf script\_name.py}  \hfill  {\em run\_type} \hfill  {\em min\_order} \hfill {\em max\_order} \hfill {\em IIE\_min\_order} \hfill {\em IIE\_max\_order} \hfill {\em N\_Reps}	
+}
+
+\vspace{0.3cm}
+\noindent where:
+
+\begin{itemize}
+
+\item {\em run\_type}: It denotes if the experiments are to be run or not. The provided values can be:
+	    \begin{itemize}
+			\item {\tt 0}: Do not run the experiments but only plot them from the previously obtained data files.
+			\item {\tt 1}: Run the experiments, save the results to data files and then plot them.
+	    \end{itemize}
+\item	{\em min\_order}   {\em max\_order}: Minimum and maximum order of the corresponding VSIIE/VSSBDF family of methods 
+        to be used in the experiments. 
+
+
+\item	{\em IIE\_min\_order}   {\em IIE\_max\_order} : Minimum and maximum order of the IIE methods to be used in the experiments.
+
+\item {\em N\_Reps}: Number of repetitions of each experiment to obtain the minimum runtime.	
+
+\end{itemize}
+
+If the user	wish to run the experiments for all the orders of all VSIIE, VSSBDF and IIE methods with 3 repetitions,
+he can call the script as follows: 
+
+\begin{center}
+{\bf script\_name.py} \hspace{2mm} 1\hspace{2mm} 1 \hspace{2mm} 4 \hspace{2mm} 1 \hspace{2mm} 4 \hspace{2mm} 3.
+\end{center}
+
+On the other hand, if the user wish to run the experiments for a particular range of orders of VSIIE and/or IIE methods,
+he can specify the corresponding minimum and maximum orders in the call to the script.
+So, for example, the following call
+
+
+\begin{center}
+{\bf script\_name.py} \hspace{2mm} 1 \hspace{2mm} 2 \hspace{2mm} 3 \hspace{2mm} 1 \hspace{2mm} 2 \hspace{2mm} 4	
+\end{center}
+
+
+\noindent runs the experiments for orders 2 and 3 of the VSIIE/VSSBDF methods and orders 1 and 2 of the IIE methods using 4 repetitions.
+
+One can also avoid easily to do experiments with a particular method (IIE or VSIIE). So for example, the 
+the call:
+
+
+\begin{center}
+{\bf script\_name.py} \hspace{2mm}  1 \hspace{2mm} 2 \hspace{2mm} 2 \hspace{2mm} 0 \hspace{2mm} 0 \hspace{2mm} 3 
+\end{center}
+
+\noindent only runs the experiments for order 2 of the VSIIE methods (there is no experiment for IIE methods). 
+In this way, the scripts allows the user to choose what orders to be used in the experiments and thus avoid to recompute 
+data which have been already obtained previously.
+
+\bibliographystyle{plain}
+\bibliography{references}
+
+\end{document}
